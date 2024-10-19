@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="cn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>选择困难症福音</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        #wheel-container {
+            position: relative;
+            width: 500px;
+            height: 500px;
+        }
+        #wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(#8e44ad 0deg 36deg, #c21f30 36deg 72deg, #fb8b05 72deg 108deg, #40a070 108deg 144deg, #0eb0c9 144deg 180deg, #ce5777 180deg 216deg, #5c3719 216deg 252deg, #edc3ae 252deg 288deg, #393733 288deg 324deg, #ED4264 324deg 360deg);
+        }
+        #pointer {
+            position: absolute;
+            top: -12%;
+            left: 47.8%;
+            width: 20px;
+            height: 250px;
+            transform-origin: 50% 78%;
+            transform: translate(5%, 46.5%) rotate(0deg);
+            pointer-events: none;
+        }
+        .input-container {
+            margin-top: 20px;
+        }
+        .input-field {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h2>选择困难症福音</h2>
+    <div id="wheel-container">
+        <div id="wheel"></div>
+        <svg id="pointer" viewBox="0 0 10 100" xmlns="http://www.w3.org/2000/svg">
+            <polygon points="5,0 6,15 8,85 5,100 2,85 4,15" fill="black" />
+        </svg>
+    </div>
+    <div class="input-container">
+        <div id="input-fields">
+            <div class="input-field">
+                <label for="project1">项目 1:</label>
+                <input type="text" id="project1" name="project1">
+                <label for="weight1">权重(%):</label>
+                <input type="number" id="weight1" name="weight1" min="0" max="100" value="50">
+            </div>
+            <div class="input-field">
+                <label for="project2">项目 2:</label>
+                <input type="text" id="project2" name="project2">
+                <label for="weight2">权重(%):</label>
+                <input type="number" id="weight2" name="weight2" min="0" max="100" value="50">
+            </div>
+        </div>
+        <button onclick="addInputField()">添加项目</button>
+        <button onclick="generateWheel()">创建选择器</button>
+        <button onclick="spinWheel()">转他丫的！</button>
+    </div>
+
+    <script>
+        let projectCount = 2;
+        let spinCount = 0;
+        const colors = [
+            '#8e44ad', '#c21f30', '#fb8b05', '#40a070', '#0eb0c9',
+            '#ce5777', '#5c3719', '#edc3ae', '#393733', '#ED4264'
+        ];
+        
+        function addInputField() {
+            if (projectCount >= 10) return;
+            projectCount++;
+            const container = document.getElementById('input-fields');
+            const fieldHTML = `
+                <div class="input-field">
+                    <label for="project${projectCount}">项目 ${projectCount}:</label>
+                    <input type="text" id="project${projectCount}" name="project${projectCount}">
+                    <label for="weight${projectCount}">权重(%):</label>
+                    <input type="number" id="weight${projectCount}" name="weight${projectCount}" min="0" max="100" value="0">
+                </div>`;
+            container.insertAdjacentHTML('beforeend', fieldHTML);
+        }
+
+        function generateWheel() {
+            spinCount = 0;
+            const projects = [];
+            for (let i = 1; i <= projectCount; i++) {
+                const project = document.getElementById(`project${i}`).value;
+                const weight = parseInt(document.getElementById(`weight${i}`).value);
+                if (project && weight >= 0) {
+                    projects.push({ project, weight });
+                }
+            }
+
+            let totalWeight = projects.reduce((total, proj) => total + proj.weight, 0);
+
+            if (totalWeight > 100) {
+                alert('输入的权重总和超过100%，请调整权重');
+                return;
+            }
+
+            if (totalWeight < 100 && projects.length > 0) {
+                projects[projects.length - 1].weight += 100 - totalWeight;
+            }
+
+            let currentAngle = 0;
+            let gradientParts = projects.map(({ project, weight }, index) => {
+                let color = colors[index % colors.length];
+                let startAngle = currentAngle;
+                let endAngle = currentAngle + (weight / 100) * 360;
+                currentAngle = endAngle;
+                return `${color} ${startAngle}deg ${endAngle}deg`;
+            }).join(', ');
+
+            document.getElementById('wheel').style.background = `conic-gradient(${gradientParts})`;
+        }
+
+        function spinWheel() {
+            if (spinCount >= 3 && spinCount < 5) {
+                alert('差不多得了，再转没意思了');
+            }else if (spinCount >= 5) {
+                alert('别在这玩了，赶紧去做事！');
+                return;
+            }
+            spinCount++;
+            const pointer = document.getElementById('pointer');
+            const randomAngle = Math.floor(Math.random() * 1000 + 1000);
+            const duration = randomAngle / 360; // 1 second per 360 degrees
+
+            pointer.style.transition = `transform ${duration}s ease-out`;
+            pointer.style.transform = `translate(5%, 46.5%) rotate(${randomAngle}deg)`;
+
+            setTimeout(() => {
+                const finalAngle = randomAngle % 360;
+                highlightSection(finalAngle);
+            }, duration * 1000);
+        }
+
+        function highlightSection(finalAngle) {
+            const projects = [];
+            for (let i = 1; i <= projectCount; i++) {
+                const project = document.getElementById(`project${i}`).value;
+                const weight = parseInt(document.getElementById(`weight${i}`).value);
+                if (project && weight >= 0) {
+                    projects.push({ project, weight });
+                }
+            }
+
+            let totalWeight = projects.reduce((total, proj) => total + proj.weight, 0);
+
+            if (totalWeight < 100 && projects.length > 0) {
+                projects[projects.length - 1].weight += 100 - totalWeight;
+            }
+
+            let currentAngle = 0;
+            for (let i = 0; i < projects.length; i++) {
+                const { weight } = projects[i];
+                let startAngle = currentAngle;
+                let endAngle = currentAngle + (weight / 100) * 360;
+                if (finalAngle >= startAngle && finalAngle < endAngle) {
+                    alert(`就决定是你了！ ${projects[i].project}`);
+                    break;
+                }
+                currentAngle = endAngle;
+            }
+        }
+    </script>
+</body>
+</html>
