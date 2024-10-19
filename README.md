@@ -4,3 +4,4 @@ First of all, you can add alternative projects and can add weights to these proj
 Then click Generate Wheel and the wheel will automatically be divided into regions based on the weights set by you before. 
 Finally click Spin Wheel. The wheel spins randomly and stays in a certain area, then do it!
 ![](https://github.com/ShuHeng05144/ChoiceWheel/blob/main/Choice%20Wheel.png)
+![](https://github.com/ShuHeng05144/ChoiceWheel/blob/main/Choice%20Wheel2.png)
